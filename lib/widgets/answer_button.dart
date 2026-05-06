@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/game_color.dart';
+import '../providers/game_provider.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
@@ -14,6 +16,7 @@ class AnswerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wordScript = context.watch<GameProvider>().wordScript;
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
@@ -24,7 +27,7 @@ class AnswerButton extends StatelessWidget {
         elevation: 2,
       ),
       child: Text(
-        gameColor.label,
+        gameColor.labelFor(wordScript),
         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );

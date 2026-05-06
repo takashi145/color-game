@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/best_score_record.dart';
 import '../models/game_state.dart';
+import '../models/word_script.dart';
 
 class StorageService {
   static const _keyHighScoreColor = 'high_score_color';
@@ -16,6 +17,7 @@ class StorageService {
   static const _keyBestAvgTimeColor = 'best_avg_time_color';
   static const _keyBestAvgTimeWord = 'best_avg_time_word';
   static const _keyBestAvgTimeMix = 'best_avg_time_mix';
+  static const _keyWordScript = 'word_script';
   static const _keyTotalPlays = 'total_plays';
   static const _keyTotalCorrect = 'total_correct';
   static const _keyTotalQuestions = 'total_questions';
@@ -62,6 +64,17 @@ class StorageService {
       case GameMode.mixMode:
         return _keyBestAvgTimeMix;
     }
+  }
+
+  Future<WordScript> getWordScript() async {
+    final prefs = await SharedPreferences.getInstance();
+    final index = prefs.getInt(_keyWordScript) ?? WordScript.kanji.index;
+    return WordScript.values[index];
+  }
+
+  Future<void> saveWordScript(WordScript script) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_keyWordScript, script.index);
   }
 
   Future<int> getHighScore(GameMode mode) async {

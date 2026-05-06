@@ -7,6 +7,7 @@ import '../models/best_score_record.dart';
 import '../models/color_pair.dart';
 import '../models/game_color.dart';
 import '../models/game_state.dart';
+import '../models/word_script.dart';
 import '../services/storage_service.dart';
 
 const int kCountdownSeconds = 3;
@@ -14,7 +15,7 @@ const int kCountdownSeconds = 3;
 class GameProvider extends ChangeNotifier {
   GameProvider({required StorageService storageService})
       : _storage = storageService {
-    Future.microtask(loadAllHighScores);
+    Future.microtask(_loadSettings);
   }
 
   final StorageService _storage;
@@ -44,6 +45,8 @@ class GameProvider extends ChangeNotifier {
   DateTime? _questionStartTime;
   int _totalResponseTimeMs = 0;
 
+  WordScript _wordScript = WordScript.kanji;
+
   Map<GameMode, BestScoreRecord> _bestRecords = {
     for (final mode in GameMode.values)
       mode: BestScoreRecord(score: 0, correctCount: 0, totalQuestions: 0, avgResponseTimeMs: 0),
@@ -55,13 +58,21 @@ class GameProvider extends ChangeNotifier {
   int get countdownValue => _countdownValue;
 
   BestScoreRecord bestRecordForMode(GameMode mode) => _bestRecords[mode]!;
+  WordScript get wordScript => _wordScript;
 
   int get avgResponseTimeMs => _state.totalQuestions == 0
       ? 0
       : _totalResponseTimeMs ~/ _state.totalQuestions;
 
-  Future<void> loadAllHighScores() async {
+  Future<void> _loadSettings() async {
+    _wordScript = await _storage.getWordScript();
     _bestRecords = await _storage.getAllBestRecords();
+    notifyListeners();
+  }
+
+  Future<void> setWordScript(WordScript script) async {
+    _wordScript = script;
+    await _storage.saveWordScript(script);
     notifyListeners();
   }
 

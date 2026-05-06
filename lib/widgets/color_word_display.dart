@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/color_pair.dart';
 import '../models/game_state.dart';
+import '../providers/game_provider.dart';
 
 class ColorWordDisplay extends StatelessWidget {
   const ColorWordDisplay({
@@ -19,6 +21,7 @@ class ColorWordDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wordScript = context.watch<GameProvider>().wordScript;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -31,7 +34,7 @@ class ColorWordDisplay extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Text(
-              pair.textContent.label,
+              pair.textContent.labelFor(wordScript),
               style: TextStyle(
                 fontSize: 64,
                 fontWeight: FontWeight.bold,

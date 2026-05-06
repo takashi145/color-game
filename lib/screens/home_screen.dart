@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/game_state.dart';
+import '../models/word_script.dart';
 import '../providers/game_provider.dart';
 import 'game_screen.dart';
 
@@ -10,6 +11,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<GameProvider>();
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -53,10 +55,94 @@ class HomeScreen extends StatelessWidget {
                   mode: GameMode.mixMode,
                   color: Colors.deepOrange,
                 ),
+                const SizedBox(height: 32),
+                OutlinedButton.icon(
+                  onPressed: () => _showScriptSettings(context),
+                  icon: const Icon(Icons.settings, size: 18),
+                  label: Text('文字設定: ${provider.wordScript.displayName}'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showScriptSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const _ScriptSettingsSheet(),
+    );
+  }
+}
+
+class _ScriptSettingsSheet extends StatelessWidget {
+  const _ScriptSettingsSheet();
+
+  String _example(WordScript script) {
+    switch (script) {
+      case WordScript.kanji:
+        return '赤、青、緑…';
+      case WordScript.hiragana:
+        return 'あか、あお、みどり…';
+      case WordScript.katakana:
+        return 'アカ、アオ、ミドリ…';
+      case WordScript.english:
+        return 'Red, Blue, Green…';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<GameProvider>();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '文字設定',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '問題と回答ボタンに使う文字の種類を変更します',
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 20),
+          ...WordScript.values.map(
+            (script) => RadioListTile<WordScript>(
+              title: Row(
+                children: [
+                  Text(script.displayName,
+                      style: const TextStyle(fontSize: 16)),
+                  const SizedBox(width: 12),
+                  Text(
+                    _example(script),
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                  ),
+                ],
+              ),
+              value: script,
+              groupValue: provider.wordScript,
+              onChanged: (v) {
+                if (v != null) context.read<GameProvider>().setWordScript(v);
+              },
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ],
       ),
     );
   }

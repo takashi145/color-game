@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'word_script.dart';
+
 enum GameColor {
   red,
   blue,
@@ -21,7 +23,59 @@ enum GameColor {
       case GameColor.purple:
         return '紫';
       case GameColor.orange:
-        return 'オレンジ';
+        return '橙';
+    }
+  }
+
+  String labelFor(WordScript script) {
+    switch (script) {
+      case WordScript.kanji:
+        return label;
+      case WordScript.hiragana:
+        switch (this) {
+          case GameColor.red:
+            return 'あか';
+          case GameColor.blue:
+            return 'あお';
+          case GameColor.green:
+            return 'みどり';
+          case GameColor.yellow:
+            return 'きいろ';
+          case GameColor.purple:
+            return 'むらさき';
+          case GameColor.orange:
+            return 'おれんじ';
+        }
+      case WordScript.katakana:
+        switch (this) {
+          case GameColor.red:
+            return 'アカ';
+          case GameColor.blue:
+            return 'アオ';
+          case GameColor.green:
+            return 'ミドリ';
+          case GameColor.yellow:
+            return 'キイロ';
+          case GameColor.purple:
+            return 'ムラサキ';
+          case GameColor.orange:
+            return 'オレンジ';
+        }
+      case WordScript.english:
+        switch (this) {
+          case GameColor.red:
+            return 'Red';
+          case GameColor.blue:
+            return 'Blue';
+          case GameColor.green:
+            return 'Green';
+          case GameColor.yellow:
+            return 'Yellow';
+          case GameColor.purple:
+            return 'Purple';
+          case GameColor.orange:
+            return 'Orange';
+        }
     }
   }
 
