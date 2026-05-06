@@ -1,16 +1,32 @@
-# color_game
+# IroTrick
 
-A new Flutter project.
+ストループ効果を使った脳トレゲームアプリです。
 
-## Getting Started
+## 概要
 
-This project is a starting point for a Flutter application.
+画面に表示された色名の「文字色」または「文字内容」を素早く答えるゲームです。脳の認知的干渉（ストループ効果）を体験しながら、反射神経と集中力を鍛えられます。
 
-A few resources to get you started if this is your first Flutter project:
+## 機能
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **3つのゲームモード**
+  - 文字色モード: 単語の文字色を答える
+  - 文字内容モード: 単語の内容を答える
+  - ミックスモード: 文字色・文字内容がランダムに切り替わる上級者向けモード
+- **4種類の文字設定**: 漢字 / ひらがな / カタカナ / English
+- **スコア・正答率・平均反応速度の記録**
+- **ベストスコア更新時の紙吹雪アニメーション**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 技術スタック
+
+- Framework: Flutter
+- Language: Dart
+- Architecture: MVVM
+- State Management: Provider
+- Target: Android / iOS
+
+## セットアップ
+
+```bash
+flutter pub get
+flutter run
+```
