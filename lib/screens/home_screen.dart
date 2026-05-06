@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'カラーゲーム',
+                  'IroTrick',
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,

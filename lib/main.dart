@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => GameProvider(storageService: StorageService()),
       child: MaterialApp(
-        title: 'カラーゲーム',
+        title: 'IroTrick',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
           useMaterial3: true,
