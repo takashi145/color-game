@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../logic/game_logic.dart';
+import '../models/best_score_record.dart';
 import '../models/color_pair.dart';
 import '../models/game_color.dart';
 import '../models/game_state.dart';
@@ -41,31 +42,20 @@ class GameProvider extends ChangeNotifier {
   bool _isAnswering = false;
   int _countdownValue = kCountdownSeconds;
 
-  int _highScoreColor = 0;
-  int _highScoreWord = 0;
-  int _highScoreMix = 0;
+  Map<GameMode, BestScoreRecord> _bestRecords = {
+    for (final mode in GameMode.values)
+      mode: BestScoreRecord(score: 0, correctCount: 0, totalQuestions: 0),
+  };
 
   GameState get state => _state;
   int get highScore => _highScore;
   bool get isNewHighScore => _isNewHighScore;
   int get countdownValue => _countdownValue;
 
-  int highScoreForMode(GameMode mode) {
-    switch (mode) {
-      case GameMode.colorMode:
-        return _highScoreColor;
-      case GameMode.wordMode:
-        return _highScoreWord;
-      case GameMode.mixMode:
-        return _highScoreMix;
-    }
-  }
+  BestScoreRecord bestRecordForMode(GameMode mode) => _bestRecords[mode]!;
 
   Future<void> loadAllHighScores() async {
-    final stats = await _storage.getAllStats();
-    _highScoreColor = stats['highScoreColor']!;
-    _highScoreWord = stats['highScoreWord']!;
-    _highScoreMix = stats['highScoreMix']!;
+    _bestRecords = await _storage.getAllBestRecords();
     notifyListeners();
   }
 
@@ -183,17 +173,22 @@ class GameProvider extends ChangeNotifier {
     _timer?.cancel();
     _feedbackTimer?.cancel();
 
-    _isNewHighScore = await _storage.saveHighScore(_state.mode, _state.score);
+    _isNewHighScore = await _storage.saveHighScore(
+      _state.mode,
+      _state.score,
+      correctCount: _state.correctCount,
+      totalQuestions: _state.totalQuestions,
+    );
     if (_isNewHighScore) {
       _highScore = _state.score;
-      switch (_state.mode) {
-        case GameMode.colorMode:
-          _highScoreColor = _state.score;
-        case GameMode.wordMode:
-          _highScoreWord = _state.score;
-        case GameMode.mixMode:
-          _highScoreMix = _state.score;
-      }
+      _bestRecords = {
+        ..._bestRecords,
+        _state.mode: BestScoreRecord(
+          score: _state.score,
+          correctCount: _state.correctCount,
+          totalQuestions: _state.totalQuestions,
+        ),
+      };
     }
     await _storage.recordGameResult(
       correctCount: _state.correctCount,

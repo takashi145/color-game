@@ -157,8 +157,7 @@ class _ModeDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<GameProvider>();
-    final highScore = provider.highScoreForMode(mode);
+    final record = context.watch<GameProvider>().bestRecordForMode(mode);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
@@ -169,7 +168,7 @@ class _ModeDetailSheet extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: color.withOpacity(0.15),
+                backgroundColor: color.withValues(alpha: 0.15),
                 child: Icon(_icon, color: color),
               ),
               const SizedBox(width: 12),
@@ -198,30 +197,55 @@ class _ModeDetailSheet extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.08),
+              color: color.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.emoji_events, color: color, size: 28),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
+                    Icon(Icons.emoji_events, color: color, size: 16),
+                    const SizedBox(width: 4),
                     Text(
                       'ベストスコア',
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                    ),
-                    Text(
-                      highScore == 0 ? 'まだ記録なし' : '$highScore pt',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: color,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                record.hasRecord
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _StatItem(
+                            icon: Icons.star,
+                            label: 'スコア',
+                            value: '${record.score} pt',
+                            color: color,
+                          ),
+                          _StatItem(
+                            icon: Icons.check_circle_outline,
+                            label: '正解数',
+                            value: '${record.correctCount} / ${record.totalQuestions}',
+                            color: color,
+                          ),
+                          _StatItem(
+                            icon: Icons.percent,
+                            label: '正答率',
+                            value: '${(record.accuracy * 100).toStringAsFixed(0)}%',
+                            color: color,
+                          ),
+                        ],
+                      )
+                    : Text(
+                        'まだ記録なし',
+                        style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+                      ),
               ],
             ),
           ),
@@ -255,6 +279,36 @@ class _ModeDetailSheet extends StatelessWidget {
     context.read<GameProvider>().startGame(mode);
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const GameScreen()),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(height: 4),
+        Text(label,
+            style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+        const SizedBox(height: 2),
+        Text(value,
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: color)),
+      ],
     );
   }
 }

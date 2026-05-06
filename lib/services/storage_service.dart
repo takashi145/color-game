@@ -1,11 +1,18 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/best_score_record.dart';
 import '../models/game_state.dart';
 
 class StorageService {
   static const _keyHighScoreColor = 'high_score_color';
   static const _keyHighScoreWord = 'high_score_word';
   static const _keyHighScoreMix = 'high_score_mix';
+  static const _keyBestCorrectColor = 'best_correct_color';
+  static const _keyBestCorrectWord = 'best_correct_word';
+  static const _keyBestCorrectMix = 'best_correct_mix';
+  static const _keyBestQuestionsColor = 'best_questions_color';
+  static const _keyBestQuestionsWord = 'best_questions_word';
+  static const _keyBestQuestionsMix = 'best_questions_mix';
   static const _keyTotalPlays = 'total_plays';
   static const _keyTotalCorrect = 'total_correct';
   static const _keyTotalQuestions = 'total_questions';
@@ -21,25 +28,57 @@ class StorageService {
     }
   }
 
+  static String _bestCorrectKey(GameMode mode) {
+    switch (mode) {
+      case GameMode.colorMode:
+        return _keyBestCorrectColor;
+      case GameMode.wordMode:
+        return _keyBestCorrectWord;
+      case GameMode.mixMode:
+        return _keyBestCorrectMix;
+    }
+  }
+
+  static String _bestQuestionsKey(GameMode mode) {
+    switch (mode) {
+      case GameMode.colorMode:
+        return _keyBestQuestionsColor;
+      case GameMode.wordMode:
+        return _keyBestQuestionsWord;
+      case GameMode.mixMode:
+        return _keyBestQuestionsMix;
+    }
+  }
+
   Future<int> getHighScore(GameMode mode) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_highScoreKey(mode)) ?? 0;
   }
 
-  Future<bool> saveHighScore(GameMode mode, int score) async {
+  Future<bool> saveHighScore(
+    GameMode mode,
+    int score, {
+    required int correctCount,
+    required int totalQuestions,
+  }) async {
     final current = await getHighScore(mode);
     if (score <= current) return false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_highScoreKey(mode), score);
+    await prefs.setInt(_bestCorrectKey(mode), correctCount);
+    await prefs.setInt(_bestQuestionsKey(mode), totalQuestions);
     return true;
   }
 
-  Future<Map<String, int>> getAllStats() async {
+  Future<Map<GameMode, BestScoreRecord>> getAllBestRecords() async {
     final prefs = await SharedPreferences.getInstance();
     return {
-      'highScoreColor': prefs.getInt(_keyHighScoreColor) ?? 0,
-      'highScoreWord': prefs.getInt(_keyHighScoreWord) ?? 0,
-      'highScoreMix': prefs.getInt(_keyHighScoreMix) ?? 0,
+      for (final mode in GameMode.values)
+        mode: BestScoreRecord(
+          score: prefs.getInt(_highScoreKey(mode)) ?? 0,
+          correctCount: prefs.getInt(_bestCorrectKey(mode)) ?? 0,
+          totalQuestions: prefs.getInt(_bestQuestionsKey(mode)) ?? 0,
+        ),
     };
   }
 
