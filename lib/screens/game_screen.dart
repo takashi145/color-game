@@ -107,16 +107,22 @@ class _TimerBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ratio = state.remainingSeconds / kGameDurationSeconds;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: LinearProgressIndicator(
-        value: ratio,
-        minHeight: 8,
-        backgroundColor: Colors.grey[300],
-        valueColor: AlwaysStoppedAnimation(
-          ratio > 0.3 ? Colors.green : Colors.red,
-        ),
-      ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: ratio),
+      duration: const Duration(seconds: 1),
+      builder: (context, value, _) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: value,
+            minHeight: 8,
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation(
+              value > 0.3 ? Colors.green : Colors.red,
+            ),
+          ),
+        );
+      },
     );
   }
 }
