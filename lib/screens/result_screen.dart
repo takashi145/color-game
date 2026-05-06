@@ -6,6 +6,9 @@ import '../models/game_state.dart';
 import '../providers/game_provider.dart';
 import 'game_screen.dart';
 
+const _accent = Color(0xFF7C6FFF);
+const _textSub = Colors.black38;
+
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
 
@@ -46,70 +49,106 @@ class _ResultScreenState extends State<ResultScreen> {
         : state.correctCount / state.totalQuestions * 100;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       body: Stack(
         children: [
           SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (provider.isNewHighScore) ...[
-                      const Icon(Icons.emoji_events,
-                          color: Colors.amber, size: 72),
-                      const SizedBox(height: 8),
-                      const Text('ハイスコア更新！',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber)),
-                      const SizedBox(height: 16),
-                    ] else ...[
-                      const Text('ゲーム終了',
-                          style: TextStyle(
-                              fontSize: 28, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 24),
-                    ],
-                    _ResultCard(
-                      state: state,
-                      accuracy: accuracy,
-                      highScore: provider.highScore,
-                      avgResponseTimeMs: provider.avgResponseTimeMs,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                children: [
+                  const SizedBox(height: 48),
+                  if (provider.isNewHighScore) ...[
+                    const Icon(Icons.emoji_events_rounded,
+                        color: Color(0xFFFFC107), size: 48),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'ハイスコア更新！',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFF59E0B)),
                     ),
-                    const SizedBox(height: 40),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => _retry(context, state.mode),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                        ),
-                        child: const Text('もう一度',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
-                      ),
+                    const SizedBox(height: 4),
+                  ] else ...[
+                    const Text(
+                      'ゲーム終了',
+                      style: TextStyle(fontSize: 13, color: _textSub),
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context)
-                            .popUntil((route) => route.isFirst),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                        ),
-                        child: const Text('ホームへ',
-                            style: TextStyle(fontSize: 20)),
-                      ),
-                    ),
+                    const SizedBox(height: 4),
                   ],
-                ),
+                  Text(
+                    '${state.score}',
+                    style: const TextStyle(
+                      fontSize: 88,
+                      fontWeight: FontWeight.w800,
+                      color: _accent,
+                      letterSpacing: -4,
+                    ),
+                  ),
+                  const Text(
+                    'スコア',
+                    style: TextStyle(fontSize: 13, color: _textSub),
+                  ),
+                  const SizedBox(height: 40),
+                  _StatRow(
+                    label: 'ハイスコア',
+                    value: '${provider.highScore} pt',
+                  ),
+                  const Divider(color: Color(0xFFE8E8F0), height: 28),
+                  _StatRow(
+                    label: '正解数',
+                    value: '${state.correctCount} / ${state.totalQuestions}',
+                  ),
+                  const Divider(color: Color(0xFFE8E8F0), height: 28),
+                  _StatRow(
+                    label: '正答率',
+                    value: '${accuracy.toStringAsFixed(1)}%',
+                  ),
+                  const Divider(color: Color(0xFFE8E8F0), height: 28),
+                  _StatRow(
+                    label: '平均回答時間',
+                    value:
+                        '${(provider.avgResponseTimeMs / 1000).toStringAsFixed(2)} 秒',
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _retry(context, state.mode),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _accent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('もう一度',
+                          style: TextStyle(
+                              fontSize: 17, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          Navigator.of(context).popUntil((r) => r.isFirst),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black54,
+                        side: const BorderSide(color: Color(0xFFE8E8F0)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text('ホームへ',
+                          style: TextStyle(fontSize: 17)),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
           ),
@@ -121,12 +160,11 @@ class _ResultScreenState extends State<ResultScreen> {
               numberOfParticles: 30,
               gravity: 0.2,
               colors: const [
-                Colors.amber,
-                Colors.orange,
-                Colors.pink,
-                Colors.blue,
-                Colors.green,
-                Colors.purple,
+                Color(0xFFFFC107),
+                Color(0xFFFF6B6B),
+                Color(0xFF7C6FFF),
+                Color(0xFF06D6A0),
+                Color(0xFF74C0FC),
               ],
             ),
           ),
@@ -143,56 +181,22 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 }
 
-class _ResultCard extends StatelessWidget {
-  const _ResultCard({
-    required this.state,
-    required this.accuracy,
-    required this.highScore,
-    required this.avgResponseTimeMs,
-  });
+class _StatRow extends StatelessWidget {
+  const _StatRow({required this.label, required this.value});
 
-  final GameState state;
-  final double accuracy;
-  final int highScore;
-  final int avgResponseTimeMs;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          children: [
-            _row('スコア', '${state.score}点',
-                style: const TextStyle(
-                    fontSize: 36, fontWeight: FontWeight.bold)),
-            const Divider(height: 28),
-            _row('ハイスコア', '$highScore点'),
-            const SizedBox(height: 12),
-            _row('正解数',
-                '${state.correctCount} / ${state.totalQuestions}問'),
-            const SizedBox(height: 12),
-            _row('正答率', '${accuracy.toStringAsFixed(1)}%'),
-            const SizedBox(height: 12),
-            _row('平均回答時間',
-                '${(avgResponseTimeMs / 1000).toStringAsFixed(2)}秒'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _row(String label, String value, {TextStyle? style}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: const TextStyle(fontSize: 16, color: Colors.black54)),
+            style: const TextStyle(fontSize: 15, color: _textSub)),
         Text(value,
-            style: style ??
-                const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            style: const TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w600)),
       ],
     );
   }

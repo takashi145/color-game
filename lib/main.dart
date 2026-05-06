@@ -18,8 +18,14 @@ class MyApp extends StatelessWidget {
       create: (_) => GameProvider(storageService: StorageService()),
       child: MaterialApp(
         title: 'IroTrick',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+          brightness: Brightness.light,
+          scaffoldBackgroundColor: const Color(0xFFF7F6FF),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF7C6FFF),
+            brightness: Brightness.light,
+          ),
           useMaterial3: true,
         ),
         home: const HomeScreen(),

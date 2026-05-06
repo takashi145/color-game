@@ -9,6 +9,9 @@ import '../widgets/answer_button.dart';
 import '../widgets/color_word_display.dart';
 import 'result_screen.dart';
 
+const _accent = Color(0xFF7C6FFF);
+const _textSub = Colors.black38;
+
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
 
@@ -27,21 +30,17 @@ class GameScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          backgroundColor: Colors.grey[50],
           appBar: AppBar(
-            backgroundColor: Colors.grey[50],
+            backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.close),
+              icon: const Icon(Icons.close_rounded, color: _textSub),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
           body: SafeArea(
             child: state.phase == GamePhase.countdown
-                ? _CountdownBody(
-                    provider: provider,
-                    state: state,
-                  )
+                ? _CountdownBody(provider: provider, state: state)
                 : _GameBody(state: state, provider: provider),
           ),
         );
@@ -62,25 +61,26 @@ class _CountdownBody extends StatelessWidget {
       child: Column(
         children: [
           _Header(state: state),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _TimerBar(state: state),
           const Spacer(),
           Text(
             '${provider.countdownValue}',
             style: const TextStyle(
-              fontSize: 96,
-              fontWeight: FontWeight.bold,
-              color: Colors.indigo,
+              fontSize: 120,
+              fontWeight: FontWeight.w800,
+              color: _accent,
+              letterSpacing: -4,
             ),
           ),
           const Spacer(),
           AbsorbPointer(
             child: Opacity(
-              opacity: 0.4,
+              opacity: 0.25,
               child: _AnswerGrid(state: state, provider: provider),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
         ],
       ),
     );
@@ -99,7 +99,7 @@ class _GameBody extends StatelessWidget {
       child: Column(
         children: [
           _Header(state: state),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           _TimerBar(state: state),
           const Spacer(),
           ColorWordDisplay(
@@ -110,7 +110,7 @@ class _GameBody extends StatelessWidget {
           ),
           const Spacer(),
           _AnswerGrid(state: state, provider: provider),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
         ],
       ),
     );
@@ -129,33 +129,45 @@ class _Header extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('スコア',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+            const Text('スコア',
+                style: TextStyle(fontSize: 12, color: _textSub)),
             Text('${state.score}',
                 style: const TextStyle(
-                    fontSize: 32, fontWeight: FontWeight.bold)),
+                    fontSize: 36,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -1)),
           ],
         ),
-        Chip(
-          label: Text(
-            state.mode.label,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: _accent.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
           ),
-          backgroundColor: Colors.grey[200],
-          side: BorderSide.none,
-          padding: EdgeInsets.zero,
+          child: Text(
+            state.mode.label,
+            style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: _accent),
+          ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('残り時間',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-            Text('${state.remainingSeconds}秒',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: state.remainingSeconds <= 10 ? Colors.red : null,
-                )),
+            const Text('残り',
+                style: TextStyle(fontSize: 12, color: _textSub)),
+            Text(
+              '${state.remainingSeconds}s',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -1,
+                color: state.remainingSeconds <= 10
+                    ? const Color(0xFFE53935)
+                    : null,
+              ),
+            ),
           ],
         ),
       ],
@@ -171,7 +183,8 @@ class _TimerBar extends StatefulWidget {
   State<_TimerBar> createState() => _TimerBarState();
 }
 
-class _TimerBarState extends State<_TimerBar> with SingleTickerProviderStateMixin {
+class _TimerBarState extends State<_TimerBar>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _blinkController;
   late final Animation<double> _blinkAnimation;
 
@@ -182,7 +195,7 @@ class _TimerBarState extends State<_TimerBar> with SingleTickerProviderStateMixi
       vsync: this,
       duration: const Duration(milliseconds: 400),
     )..repeat(reverse: true);
-    _blinkAnimation = _blinkController.drive(Tween(begin: 0.2, end: 1.0));
+    _blinkAnimation = _blinkController.drive(Tween(begin: 0.3, end: 1.0));
   }
 
   @override
@@ -204,10 +217,14 @@ class _TimerBarState extends State<_TimerBar> with SingleTickerProviderStateMixi
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: value,
-            minHeight: 8,
-            backgroundColor: Colors.grey[300],
+            minHeight: 6,
+            backgroundColor: const Color(0xFFE8E8F0),
             valueColor: AlwaysStoppedAnimation(
-              value > 0.5 ? Colors.green : value > 0.25 ? Colors.orange : Colors.red,
+              value > 0.5
+                  ? _accent
+                  : value > 0.25
+                      ? const Color(0xFFFF9800)
+                      : const Color(0xFFE53935),
             ),
           ),
         );
@@ -233,8 +250,8 @@ class _AnswerGrid extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
       childAspectRatio: 2.8,
       children: colors
           .map((c) => AnswerButton(

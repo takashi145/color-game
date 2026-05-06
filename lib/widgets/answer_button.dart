@@ -20,11 +20,11 @@ class AnswerButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: gameColor.color,
+        backgroundColor: gameColor.color.withValues(alpha: 0.85),
         foregroundColor: gameColor.onColor,
         minimumSize: const Size.fromHeight(52),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 0,
       ),
       child: Text(
         gameColor.labelFor(wordScript),

@@ -5,6 +5,8 @@ import '../models/color_pair.dart';
 import '../models/game_state.dart';
 import '../providers/game_provider.dart';
 
+const _accent = Color(0xFF7C6FFF);
+
 class ColorWordDisplay extends StatelessWidget {
   const ColorWordDisplay({
     super.key,
@@ -53,15 +55,16 @@ class ColorWordDisplay extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.deepOrange.withValues(alpha: 0.15),
+        color: _accent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _accent.withValues(alpha: 0.25)),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          color: Colors.deepOrange,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: _accent,
         ),
       ),
     );
@@ -73,14 +76,14 @@ class ColorWordDisplay extends StatelessWidget {
       height: 100,
       decoration: BoxDecoration(
         color: correct
-            ? Colors.green.withValues(alpha: 0.7)
-            : Colors.red.withValues(alpha: 0.7),
+            ? const Color(0xFF00C48C).withValues(alpha: 0.8)
+            : const Color(0xFFE53935).withValues(alpha: 0.8),
         shape: BoxShape.circle,
       ),
       child: Icon(
-        correct ? Icons.circle_outlined : Icons.close,
+        correct ? Icons.circle_outlined : Icons.close_rounded,
         color: Colors.white,
-        size: 60,
+        size: 56,
       ),
     );
   }
