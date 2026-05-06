@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/game_provider.dart';
+import 'screens/home_screen.dart';
+import 'services/storage_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,13 +14,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => GameProvider(storageService: StorageService()),
+      child: MaterialApp(
+        title: 'カラーゲーム',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+          useMaterial3: true,
+        ),
+        home: const HomeScreen(),
       ),
-      home: const Scaffold(body: Center(child: Text('Flutter Demo Home Page'))),
     );
   }
 }
