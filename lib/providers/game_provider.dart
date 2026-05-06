@@ -8,6 +8,8 @@ import '../models/game_color.dart';
 import '../models/game_state.dart';
 import '../services/storage_service.dart';
 
+const int kCountdownSeconds = 3;
+
 class GameProvider extends ChangeNotifier {
   GameProvider({required StorageService storageService})
       : _storage = storageService;
@@ -15,6 +17,7 @@ class GameProvider extends ChangeNotifier {
   final StorageService _storage;
   Timer? _timer;
   Timer? _feedbackTimer;
+  Timer? _countdownTimer;
 
   GameState _state = GameState(
     mode: GameMode.colorMode,
@@ -34,16 +37,55 @@ class GameProvider extends ChangeNotifier {
   int _highScore = 0;
   bool _isNewHighScore = false;
   bool _isAnswering = false;
+  int _countdownValue = kCountdownSeconds;
 
   GameState get state => _state;
   int get highScore => _highScore;
   bool get isNewHighScore => _isNewHighScore;
+  int get countdownValue => _countdownValue;
 
   Future<void> startGame(GameMode mode) async {
+    _timer?.cancel();
+    _feedbackTimer?.cancel();
+    _countdownTimer?.cancel();
+
     _highScore = await _storage.getHighScore(mode);
     _isNewHighScore = false;
     _isAnswering = false;
+    _countdownValue = kCountdownSeconds;
 
+    _state = GameState(
+      mode: mode,
+      phase: GamePhase.countdown,
+      currentPair: ColorPair(
+        textContent: GameColor.red,
+        textColor: GameColor.blue,
+      ),
+      instruction: AnswerInstruction.color,
+      score: 0,
+      totalQuestions: 0,
+      correctCount: 0,
+      remainingSeconds: kGameDurationSeconds,
+      lastAnswerCorrect: null,
+    );
+    notifyListeners();
+
+    _startCountdown(mode);
+  }
+
+  void _startCountdown(GameMode mode) {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _countdownValue--;
+      if (_countdownValue <= 0) {
+        timer.cancel();
+        _beginGame(mode);
+      } else {
+        notifyListeners();
+      }
+    });
+  }
+
+  void _beginGame(GameMode mode) {
     final pair = GameLogic.generateColorPair();
     final instruction = GameLogic.generateInstruction(mode, AnswerInstruction.color);
 
@@ -133,6 +175,7 @@ class GameProvider extends ChangeNotifier {
   void dispose() {
     _timer?.cancel();
     _feedbackTimer?.cancel();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 }

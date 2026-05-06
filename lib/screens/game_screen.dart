@@ -37,29 +37,82 @@ class GameScreen extends StatelessWidget {
             ),
           ),
           body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  _Header(state: state),
-                  const SizedBox(height: 8),
-                  _TimerBar(state: state),
-                  const Spacer(),
-                  ColorWordDisplay(
-                    pair: state.currentPair,
-                    mode: state.mode,
-                    instruction: state.instruction,
-                    lastAnswerCorrect: state.lastAnswerCorrect,
-                  ),
-                  const Spacer(),
-                  _AnswerGrid(state: state, provider: provider),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
+            child: state.phase == GamePhase.countdown
+                ? _CountdownBody(
+                    provider: provider,
+                    state: state,
+                  )
+                : _GameBody(state: state, provider: provider),
           ),
         );
       },
+    );
+  }
+}
+
+class _CountdownBody extends StatelessWidget {
+  const _CountdownBody({required this.provider, required this.state});
+  final GameProvider provider;
+  final GameState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          _Header(state: state),
+          const SizedBox(height: 8),
+          _TimerBar(state: state),
+          const Spacer(),
+          Text(
+            '${provider.countdownValue}',
+            style: const TextStyle(
+              fontSize: 96,
+              fontWeight: FontWeight.bold,
+              color: Colors.indigo,
+            ),
+          ),
+          const Spacer(),
+          AbsorbPointer(
+            child: Opacity(
+              opacity: 0.4,
+              child: _AnswerGrid(state: state, provider: provider),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+}
+
+class _GameBody extends StatelessWidget {
+  const _GameBody({required this.state, required this.provider});
+  final GameState state;
+  final GameProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          _Header(state: state),
+          const SizedBox(height: 8),
+          _TimerBar(state: state),
+          const Spacer(),
+          ColorWordDisplay(
+            pair: state.currentPair,
+            mode: state.mode,
+            instruction: state.instruction,
+            lastAnswerCorrect: state.lastAnswerCorrect,
+          ),
+          const Spacer(),
+          _AnswerGrid(state: state, provider: provider),
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
 }

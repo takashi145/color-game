@@ -18,7 +18,7 @@ enum GameMode {
   }
 }
 
-enum GamePhase { idle, playing, finished }
+enum GamePhase { idle, countdown, playing, finished }
 
 enum AnswerInstruction { color, word }
 
