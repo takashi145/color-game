@@ -34,6 +34,15 @@ class StorageService {
     return true;
   }
 
+  Future<Map<String, int>> getAllStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'highScoreColor': prefs.getInt(_keyHighScoreColor) ?? 0,
+      'highScoreWord': prefs.getInt(_keyHighScoreWord) ?? 0,
+      'highScoreMix': prefs.getInt(_keyHighScoreMix) ?? 0,
+    };
+  }
+
   Future<void> recordGameResult({
     required int correctCount,
     required int totalQuestions,

@@ -12,7 +12,9 @@ const int kCountdownSeconds = 3;
 
 class GameProvider extends ChangeNotifier {
   GameProvider({required StorageService storageService})
-      : _storage = storageService;
+      : _storage = storageService {
+    Future.microtask(loadAllHighScores);
+  }
 
   final StorageService _storage;
   Timer? _timer;
@@ -39,10 +41,33 @@ class GameProvider extends ChangeNotifier {
   bool _isAnswering = false;
   int _countdownValue = kCountdownSeconds;
 
+  int _highScoreColor = 0;
+  int _highScoreWord = 0;
+  int _highScoreMix = 0;
+
   GameState get state => _state;
   int get highScore => _highScore;
   bool get isNewHighScore => _isNewHighScore;
   int get countdownValue => _countdownValue;
+
+  int highScoreForMode(GameMode mode) {
+    switch (mode) {
+      case GameMode.colorMode:
+        return _highScoreColor;
+      case GameMode.wordMode:
+        return _highScoreWord;
+      case GameMode.mixMode:
+        return _highScoreMix;
+    }
+  }
+
+  Future<void> loadAllHighScores() async {
+    final stats = await _storage.getAllStats();
+    _highScoreColor = stats['highScoreColor']!;
+    _highScoreWord = stats['highScoreWord']!;
+    _highScoreMix = stats['highScoreMix']!;
+    notifyListeners();
+  }
 
   Future<void> startGame(GameMode mode) async {
     _timer?.cancel();
@@ -161,6 +186,14 @@ class GameProvider extends ChangeNotifier {
     _isNewHighScore = await _storage.saveHighScore(_state.mode, _state.score);
     if (_isNewHighScore) {
       _highScore = _state.score;
+      switch (_state.mode) {
+        case GameMode.colorMode:
+          _highScoreColor = _state.score;
+        case GameMode.wordMode:
+          _highScoreWord = _state.score;
+        case GameMode.mixMode:
+          _highScoreMix = _state.score;
+      }
     }
     await _storage.recordGameResult(
       correctCount: _state.correctCount,
