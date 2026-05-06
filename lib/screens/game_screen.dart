@@ -47,6 +47,7 @@ class GameScreen extends StatelessWidget {
                   const Spacer(),
                   ColorWordDisplay(
                     pair: state.currentPair,
+                    mode: state.mode,
                     instruction: state.instruction,
                     lastAnswerCorrect: state.lastAnswerCorrect,
                   ),
@@ -81,6 +82,15 @@ class _Header extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold)),
           ],
+        ),
+        Chip(
+          label: Text(
+            state.mode.label,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: Colors.grey[200],
+          side: BorderSide.none,
+          padding: EdgeInsets.zero,
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,

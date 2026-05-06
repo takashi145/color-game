@@ -1,7 +1,22 @@
 import 'color_pair.dart';
 import 'game_color.dart';
 
-enum GameMode { colorMode, wordMode, mixMode }
+enum GameMode {
+  colorMode,
+  wordMode,
+  mixMode;
+
+  String get label {
+    switch (this) {
+      case GameMode.colorMode:
+        return '文字色モード';
+      case GameMode.wordMode:
+        return '文字内容モード';
+      case GameMode.mixMode:
+        return 'ミックスモード';
+    }
+  }
+}
 
 enum GamePhase { idle, playing, finished }
 

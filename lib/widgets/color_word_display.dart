@@ -7,11 +7,13 @@ class ColorWordDisplay extends StatelessWidget {
   const ColorWordDisplay({
     super.key,
     required this.pair,
+    required this.mode,
     required this.instruction,
     required this.lastAnswerCorrect,
   });
 
   final ColorPair pair;
+  final GameMode mode;
   final AnswerInstruction instruction;
   final bool? lastAnswerCorrect;
 
@@ -20,11 +22,11 @@ class ColorWordDisplay extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (instruction == AnswerInstruction.color)
-          _instructionChip('文字の色は？')
-        else
-          _instructionChip('書いてある色は？'),
-        const SizedBox(height: 24),
+        if (mode == GameMode.mixMode)
+          _instructionChip(
+            instruction == AnswerInstruction.color ? '文字の色を答える' : '文字を答える',
+          ),
+        if (mode == GameMode.mixMode) const SizedBox(height: 24),
         Stack(
           alignment: Alignment.center,
           children: [
@@ -46,14 +48,18 @@ class ColorWordDisplay extends StatelessWidget {
 
   Widget _instructionChip(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.black12,
+        color: Colors.deepOrange.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: Colors.deepOrange,
+        ),
       ),
     );
   }
