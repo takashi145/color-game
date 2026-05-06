@@ -163,28 +163,59 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _TimerBar extends StatelessWidget {
+class _TimerBar extends StatefulWidget {
   const _TimerBar({required this.state});
   final GameState state;
 
   @override
+  State<_TimerBar> createState() => _TimerBarState();
+}
+
+class _TimerBarState extends State<_TimerBar> with SingleTickerProviderStateMixin {
+  late final AnimationController _blinkController;
+  late final Animation<double> _blinkAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _blinkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    )..repeat(reverse: true);
+    _blinkAnimation = _blinkController.drive(Tween(begin: 0.2, end: 1.0));
+  }
+
+  @override
+  void dispose() {
+    _blinkController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ratio = state.remainingSeconds / kGameDurationSeconds;
+    final ratio = widget.state.remainingSeconds / kGameDurationSeconds;
+    final isLow = ratio <= 0.25;
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: ratio),
       duration: const Duration(seconds: 1),
       builder: (context, value, _) {
-        return ClipRRect(
+        final bar = ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: value,
             minHeight: 8,
             backgroundColor: Colors.grey[300],
             valueColor: AlwaysStoppedAnimation(
-              value > 0.3 ? Colors.green : Colors.red,
+              value > 0.5 ? Colors.green : value > 0.25 ? Colors.orange : Colors.red,
             ),
           ),
         );
+
+        if (isLow) {
+          return FadeTransition(opacity: _blinkAnimation, child: bar);
+        }
+        return bar;
       },
     );
   }
