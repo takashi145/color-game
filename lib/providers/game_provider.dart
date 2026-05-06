@@ -33,6 +33,7 @@ class GameProvider extends ChangeNotifier {
 
   int _highScore = 0;
   bool _isNewHighScore = false;
+  bool _isAnswering = false;
 
   GameState get state => _state;
   int get highScore => _highScore;
@@ -41,6 +42,7 @@ class GameProvider extends ChangeNotifier {
   Future<void> startGame(GameMode mode) async {
     _highScore = await _storage.getHighScore(mode);
     _isNewHighScore = false;
+    _isAnswering = false;
 
     final pair = GameLogic.generateColorPair();
     final instruction = GameLogic.generateInstruction(mode, AnswerInstruction.color);
@@ -63,6 +65,8 @@ class GameProvider extends ChangeNotifier {
 
   void answer(GameColor selected) {
     if (_state.phase != GamePhase.playing) return;
+    if (_isAnswering) return;
+    _isAnswering = true;
 
     final correct = GameLogic.checkAnswer(_state, selected);
     final newScore = correct ? _state.score + kScorePerCorrect : _state.score;
@@ -82,6 +86,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _nextQuestion() {
+    _isAnswering = false;
     if (_state.phase != GamePhase.playing) return;
 
     final pair = GameLogic.generateColorPair();
