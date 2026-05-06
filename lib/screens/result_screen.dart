@@ -41,7 +41,12 @@ class ResultScreen extends StatelessWidget {
                           fontSize: 28, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
                 ],
-                _ResultCard(state: state, accuracy: accuracy, highScore: provider.highScore),
+                _ResultCard(
+                  state: state,
+                  accuracy: accuracy,
+                  highScore: provider.highScore,
+                  avgResponseTimeMs: provider.avgResponseTimeMs,
+                ),
                 const SizedBox(height: 40),
                 SizedBox(
                   width: double.infinity,
@@ -93,11 +98,13 @@ class _ResultCard extends StatelessWidget {
     required this.state,
     required this.accuracy,
     required this.highScore,
+    required this.avgResponseTimeMs,
   });
 
   final GameState state;
   final double accuracy;
   final int highScore;
+  final int avgResponseTimeMs;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +125,8 @@ class _ResultCard extends StatelessWidget {
                 '${state.correctCount} / ${state.totalQuestions}問'),
             const SizedBox(height: 12),
             _row('正答率', '${accuracy.toStringAsFixed(1)}%'),
+            const SizedBox(height: 12),
+            _row('平均回答時間', '${(avgResponseTimeMs / 1000).toStringAsFixed(2)}秒'),
           ],
         ),
       ),

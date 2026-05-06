@@ -13,6 +13,9 @@ class StorageService {
   static const _keyBestQuestionsColor = 'best_questions_color';
   static const _keyBestQuestionsWord = 'best_questions_word';
   static const _keyBestQuestionsMix = 'best_questions_mix';
+  static const _keyBestAvgTimeColor = 'best_avg_time_color';
+  static const _keyBestAvgTimeWord = 'best_avg_time_word';
+  static const _keyBestAvgTimeMix = 'best_avg_time_mix';
   static const _keyTotalPlays = 'total_plays';
   static const _keyTotalCorrect = 'total_correct';
   static const _keyTotalQuestions = 'total_questions';
@@ -50,6 +53,17 @@ class StorageService {
     }
   }
 
+  static String _bestAvgTimeKey(GameMode mode) {
+    switch (mode) {
+      case GameMode.colorMode:
+        return _keyBestAvgTimeColor;
+      case GameMode.wordMode:
+        return _keyBestAvgTimeWord;
+      case GameMode.mixMode:
+        return _keyBestAvgTimeMix;
+    }
+  }
+
   Future<int> getHighScore(GameMode mode) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(_highScoreKey(mode)) ?? 0;
@@ -60,6 +74,7 @@ class StorageService {
     int score, {
     required int correctCount,
     required int totalQuestions,
+    required int avgResponseTimeMs,
   }) async {
     final current = await getHighScore(mode);
     if (score <= current) return false;
@@ -67,6 +82,7 @@ class StorageService {
     await prefs.setInt(_highScoreKey(mode), score);
     await prefs.setInt(_bestCorrectKey(mode), correctCount);
     await prefs.setInt(_bestQuestionsKey(mode), totalQuestions);
+    await prefs.setInt(_bestAvgTimeKey(mode), avgResponseTimeMs);
     return true;
   }
 
@@ -78,6 +94,7 @@ class StorageService {
           score: prefs.getInt(_highScoreKey(mode)) ?? 0,
           correctCount: prefs.getInt(_bestCorrectKey(mode)) ?? 0,
           totalQuestions: prefs.getInt(_bestQuestionsKey(mode)) ?? 0,
+          avgResponseTimeMs: prefs.getInt(_bestAvgTimeKey(mode)) ?? 0,
         ),
     };
   }

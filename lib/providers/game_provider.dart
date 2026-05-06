@@ -41,10 +41,12 @@ class GameProvider extends ChangeNotifier {
   bool _isNewHighScore = false;
   bool _isAnswering = false;
   int _countdownValue = kCountdownSeconds;
+  DateTime? _questionStartTime;
+  int _totalResponseTimeMs = 0;
 
   Map<GameMode, BestScoreRecord> _bestRecords = {
     for (final mode in GameMode.values)
-      mode: BestScoreRecord(score: 0, correctCount: 0, totalQuestions: 0),
+      mode: BestScoreRecord(score: 0, correctCount: 0, totalQuestions: 0, avgResponseTimeMs: 0),
   };
 
   GameState get state => _state;
@@ -53,6 +55,10 @@ class GameProvider extends ChangeNotifier {
   int get countdownValue => _countdownValue;
 
   BestScoreRecord bestRecordForMode(GameMode mode) => _bestRecords[mode]!;
+
+  int get avgResponseTimeMs => _state.totalQuestions == 0
+      ? 0
+      : _totalResponseTimeMs ~/ _state.totalQuestions;
 
   Future<void> loadAllHighScores() async {
     _bestRecords = await _storage.getAllBestRecords();
@@ -68,6 +74,8 @@ class GameProvider extends ChangeNotifier {
     _isNewHighScore = false;
     _isAnswering = false;
     _countdownValue = kCountdownSeconds;
+    _questionStartTime = null;
+    _totalResponseTimeMs = 0;
 
     _state = GameState(
       mode: mode,
@@ -115,6 +123,7 @@ class GameProvider extends ChangeNotifier {
       remainingSeconds: kGameDurationSeconds,
       lastAnswerCorrect: null,
     );
+    _questionStartTime = DateTime.now();
     notifyListeners();
 
     _startTimer();
@@ -124,6 +133,12 @@ class GameProvider extends ChangeNotifier {
     if (_state.phase != GamePhase.playing) return;
     if (_isAnswering) return;
     _isAnswering = true;
+
+    final now = DateTime.now();
+    if (_questionStartTime != null) {
+      _totalResponseTimeMs +=
+          now.difference(_questionStartTime!).inMilliseconds;
+    }
 
     final correct = GameLogic.checkAnswer(_state, selected);
     final newScore = correct ? _state.score + kScorePerCorrect : _state.score;
@@ -144,6 +159,7 @@ class GameProvider extends ChangeNotifier {
 
   void _nextQuestion() {
     _isAnswering = false;
+    _questionStartTime = DateTime.now();
     if (_state.phase != GamePhase.playing) return;
 
     final pair = GameLogic.generateColorPair();
@@ -178,6 +194,7 @@ class GameProvider extends ChangeNotifier {
       _state.score,
       correctCount: _state.correctCount,
       totalQuestions: _state.totalQuestions,
+      avgResponseTimeMs: avgResponseTimeMs,
     );
     if (_isNewHighScore) {
       _highScore = _state.score;
@@ -187,6 +204,7 @@ class GameProvider extends ChangeNotifier {
           score: _state.score,
           correctCount: _state.correctCount,
           totalQuestions: _state.totalQuestions,
+          avgResponseTimeMs: avgResponseTimeMs,
         ),
       };
     }

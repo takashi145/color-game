@@ -240,6 +240,12 @@ class _ModeDetailSheet extends StatelessWidget {
                             value: '${(record.accuracy * 100).toStringAsFixed(0)}%',
                             color: color,
                           ),
+                          _StatItem(
+                            icon: Icons.timer_outlined,
+                            label: '平均',
+                            value: '${(record.avgResponseTimeMs / 1000).toStringAsFixed(2)}秒',
+                            color: color,
+                          ),
                         ],
                       )
                     : Text(
