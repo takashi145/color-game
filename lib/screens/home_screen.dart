@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'ストループ効果チャレンジ',
+                  'ストループ効果を使った脳トレゲーム',
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 60),
