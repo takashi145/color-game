@@ -40,6 +40,7 @@ class GameProvider extends ChangeNotifier {
 
   int _highScore = 0;
   bool _isNewHighScore = false;
+  BestScoreRecord? _previousBestRecord;
   bool _isAnswering = false;
   int _countdownValue = kCountdownSeconds;
   DateTime? _questionStartTime;
@@ -58,6 +59,7 @@ class GameProvider extends ChangeNotifier {
   int get countdownValue => _countdownValue;
 
   BestScoreRecord bestRecordForMode(GameMode mode) => _bestRecords[mode]!;
+  BestScoreRecord? get previousBestRecord => _previousBestRecord;
   WordScript get wordScript => _wordScript;
 
   int get avgResponseTimeMs => _state.totalQuestions == 0
@@ -200,6 +202,7 @@ class GameProvider extends ChangeNotifier {
     _timer?.cancel();
     _feedbackTimer?.cancel();
 
+    _previousBestRecord = _bestRecords[_state.mode];
     _isNewHighScore = await _storage.saveHighScore(
       _state.mode,
       _state.score,

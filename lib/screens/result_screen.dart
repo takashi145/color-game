@@ -2,6 +2,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/best_score_record.dart';
 import '../models/game_state.dart';
 import '../providers/game_provider.dart';
 import 'game_screen.dart';
@@ -44,6 +45,9 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<GameProvider>();
     final state = provider.state;
+    final record = provider.isNewHighScore
+        ? (provider.previousBestRecord ?? provider.bestRecordForMode(state.mode))
+        : provider.bestRecordForMode(state.mode);
     final accuracy = state.totalQuestions == 0
         ? 0.0
         : state.correctCount / state.totalQuestions * 100;
@@ -89,26 +93,12 @@ class _ResultScreenState extends State<ResultScreen> {
                     'スコア',
                     style: TextStyle(fontSize: 13, color: _textSub),
                   ),
-                  const SizedBox(height: 40),
-                  _StatRow(
-                    label: 'ハイスコア',
-                    value: '${provider.highScore} pt',
-                  ),
-                  const Divider(color: Color(0xFFE8E8F0), height: 28),
-                  _StatRow(
-                    label: '正解数',
-                    value: '${state.correctCount} / ${state.totalQuestions}',
-                  ),
-                  const Divider(color: Color(0xFFE8E8F0), height: 28),
-                  _StatRow(
-                    label: '正答率',
-                    value: '${accuracy.toStringAsFixed(1)}%',
-                  ),
-                  const Divider(color: Color(0xFFE8E8F0), height: 28),
-                  _StatRow(
-                    label: '平均回答時間',
-                    value:
-                        '${(provider.avgResponseTimeMs / 1000).toStringAsFixed(2)} 秒',
+                  const SizedBox(height: 36),
+                  _ComparisonTable(
+                    state: state,
+                    accuracy: accuracy,
+                    avgResponseTimeMs: provider.avgResponseTimeMs,
+                    record: record,
                   ),
                   const Spacer(),
                   SizedBox(
@@ -181,22 +171,143 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 }
 
-class _StatRow extends StatelessWidget {
-  const _StatRow({required this.label, required this.value});
+class _ComparisonTable extends StatelessWidget {
+  const _ComparisonTable({
+    required this.state,
+    required this.accuracy,
+    required this.avgResponseTimeMs,
+    required this.record,
+  });
+
+  final GameState state;
+  final double accuracy;
+  final int avgResponseTimeMs;
+  final BestScoreRecord record;
+
+  String _avgTime(int ms) =>
+      '${(ms / 1000).toStringAsFixed(2)} 秒';
+
+  @override
+  Widget build(BuildContext context) {
+    final hasRecord = record.hasRecord;
+    final bestAccuracy = record.accuracy * 100;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Header
+          Row(
+            children: [
+              const Expanded(flex: 3, child: SizedBox()),
+              Expanded(
+                flex: 3,
+                child: Center(
+                  child: Text('今回',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: _accent.withValues(alpha: 0.8))),
+                ),
+              ),
+              if (hasRecord)
+                const Expanded(
+                  flex: 3,
+                  child: Center(
+                    child: Text('ベスト',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: _textSub)),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(color: Color(0xFFE8E8F0), height: 1),
+          const SizedBox(height: 12),
+          _Row(
+            label: 'スコア',
+            current: '${state.score} pt',
+            best: hasRecord ? '${record.score} pt' : null,
+          ),
+          const SizedBox(height: 12),
+          _Row(
+            label: '正解数',
+            current: '${state.correctCount} / ${state.totalQuestions}',
+            best: hasRecord
+                ? '${record.correctCount} / ${record.totalQuestions}'
+                : null,
+          ),
+          const SizedBox(height: 12),
+          _Row(
+            label: '正答率',
+            current: '${accuracy.toStringAsFixed(1)}%',
+            best: hasRecord ? '${bestAccuracy.toStringAsFixed(1)}%' : null,
+          ),
+          const SizedBox(height: 12),
+          _Row(
+            label: '平均',
+            current: _avgTime(avgResponseTimeMs),
+            best: hasRecord ? _avgTime(record.avgResponseTimeMs) : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  const _Row({
+    required this.label,
+    required this.current,
+    this.best,
+  });
 
   final String label;
-  final String value;
+  final String current;
+  final String? best;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(fontSize: 15, color: _textSub)),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w600)),
+        Expanded(
+          flex: 3,
+          child: Text(label,
+              style: const TextStyle(fontSize: 14, color: _textSub)),
+        ),
+        Expanded(
+          flex: 3,
+          child: Center(
+            child: Text(current,
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w700)),
+          ),
+        ),
+        if (best != null)
+          Expanded(
+            flex: 3,
+            child: Center(
+              child: Text(best!,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _textSub)),
+            ),
+          ),
       ],
     );
   }
