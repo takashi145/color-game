@@ -136,11 +136,11 @@ class _ModeDetailSheet extends StatelessWidget {
   String get _description {
     switch (mode) {
       case GameMode.colorMode:
-        return '画面に表示された単語の「文字の色」を答えてください。\n単語の意味ではなく、色に注目することがポイントです。';
+        return '画面に表示された単語の「文字の色」を答えてください。単語に惑わされないように注意！';
       case GameMode.wordMode:
-        return '画面に表示された単語の「書いてある内容（色の名前）」を答えてください。\n文字の色に惑わされないようにしましょう。';
+        return '画面に表示された単語を答えてください。文字の色に惑わされないように注意！';
       case GameMode.mixMode:
-        return '「文字色」と「文字内容」どちらを答えるかがランダムに切り替わります。\n画面上の指示をよく読んで答えてください。上級者向けモードです。';
+        return '「文字色」と「文字内容」どちらを答えるかがランダムに切り替わります。上級者向けモードです。';
     }
   }
 
