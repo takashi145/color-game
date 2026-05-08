@@ -81,6 +81,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showScriptSettings(BuildContext context) {
+    final before = context.read<GameProvider>().wordScript;
     showModalBottomSheet(
       context: context,
       backgroundColor: _surface,
@@ -88,7 +89,18 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => const _ScriptSettingsSheet(),
-    );
+    ).then((_) {
+      if (!context.mounted) return;
+      final after = context.read<GameProvider>().wordScript;
+      if (after != before) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('文字設定を${after.displayName}に変更しました'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    });
   }
 }
 
