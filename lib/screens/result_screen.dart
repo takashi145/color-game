@@ -84,7 +84,14 @@ class _ResultScreenState extends State<ResultScreen>
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 children: [
-                  const SizedBox(height: 48),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded, color: _textSub),
+                      onPressed: () =>
+                          Navigator.of(context).popUntil((r) => r.isFirst),
+                    ),
+                  ),
                   FadeTransition(
                     opacity: _fadeScore,
                     child: Column(
@@ -142,7 +149,7 @@ class _ResultScreenState extends State<ResultScreen>
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () => _retry(context, state.mode),
+                            onPressed: () => _confirmRetry(context, state.mode),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _accent,
                               foregroundColor: Colors.white,
@@ -155,24 +162,6 @@ class _ResultScreenState extends State<ResultScreen>
                             child: const Text('もう一度',
                                 style: TextStyle(
                                     fontSize: 17, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () =>
-                                Navigator.of(context).popUntil((r) => r.isFirst),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.black54,
-                              side: const BorderSide(color: Color(0xFFE8E8F0)),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            child: const Text('ホームへ',
-                                style: TextStyle(fontSize: 17)),
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -204,11 +193,30 @@ class _ResultScreenState extends State<ResultScreen>
     );
   }
 
-  void _retry(BuildContext context, GameMode mode) {
-    context.read<GameProvider>().startGame(mode);
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const GameScreen()),
+  Future<void> _confirmRetry(BuildContext context, GameMode mode) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('もう一度プレイ'),
+        content: const Text('もう一度プレイしますか？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('プレイ'),
+          ),
+        ],
+      ),
     );
+    if (ok == true && context.mounted) {
+      context.read<GameProvider>().startGame(mode);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const GameScreen()),
+      );
+    }
   }
 }
 
